@@ -5,11 +5,13 @@ import src.utils
 from src import constants
 from src.model import MatchingModel
 from src.view import MatchingView
+from src.controller import MatchingController
 
 
 def main():
     model = MatchingModel(10)
     model.setup()
+    controller = MatchingController(model)
     view = MatchingView(model)
     view.setup()
     view.display_game()
@@ -20,10 +22,8 @@ def main():
     while True:
         for _ in pygame.event.get(locals.QUIT):
             return
-        if num_loops == 2 * constants.FPS:
-            print(model.grid)
-            model.step()
-            print(model.grid)
+        if num_loops == 0 * constants.FPS:
+            controller.update()
         view.display_game()
         # controller.update()
         clock.tick(constants.FPS)

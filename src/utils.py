@@ -18,3 +18,10 @@ def subtract(vals: Iterable):
 
 def indexes(shape):
     yield from itertools.product(*[range(s) for s in shape])
+
+
+def in_range(index, shape):
+    for i, s in zip(index, shape):
+        if i < 0 or i >= s:
+            return False
+    return True

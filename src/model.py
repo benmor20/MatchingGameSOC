@@ -14,6 +14,8 @@ class MatchingModel:
         self.colors = [None] + self.colors
         shape = n, n if m is None else m
         self.grid = np.zeros(shape, dtype=int)
+        self.num_matches = []
+        self.num_steps = []
 
     @property
     def num_colors(self):
@@ -21,7 +23,7 @@ class MatchingModel:
 
     def setup(self):
         self.grid = np.random.randint(1, self.num_colors, self.grid.shape)
-        # self.step()
+        self.step()
 
     def _to_color_base(self, digits):
         return sum(d * self.num_colors ** i for i, d in enumerate(digits[::-1]))
@@ -38,21 +40,29 @@ class MatchingModel:
         return right3 | left3 | mid3
 
     def step(self):
-        # Find matches
-        horz_kernel = np.array([self.num_colors ** i for i in range(5)]).reshape(-1, 1)
-        vert_kernel = horz_kernel.copy().T
-        matches = self._get_match_array(horz_kernel) | self._get_match_array(vert_kernel)
+        self.num_matches.append(0)
+        self.num_steps.append(0)
+        while True:
+            # Find matches
+            horz_kernel = np.array([self.num_colors ** i for i in range(5)]).reshape(-1, 1)
+            vert_kernel = horz_kernel.copy().T
+            matches = self._get_match_array(horz_kernel) | self._get_match_array(vert_kernel)
+            total_matches = np.sum(matches)
+            if total_matches == 0:
+                return
+            self.num_matches[-1] += total_matches
+            self.num_steps[-1] += 1
 
-        # Empty matches
-        self.grid[matches] = 0
+            # Empty matches
+            self.grid[matches] = -1
 
-        # Drop remaining
-        # Fill empty
-        pass
+            # Drop remaining
+            for j in range(self.grid.shape[1]):
+                for i in range(self.grid.shape[0] - 1, -1, -1):
+                    while self.grid[i][j] == -1:
+                        self.grid[1:i+1, j] = self.grid[:i, j]
+                        self.grid[0, j] = 0
 
-    # 11111
-    # 1111_
-    # 111__
-    # _1111
-    # _111_
-    # __111
+            # Fill empty
+            empties = self.grid == 0
+            self.grid[empties] = np.random.randint(1, self.num_colors, self.grid.shape)[empties]
