@@ -16,7 +16,7 @@ class Controller(ABC):
         pass
 
 
-class MatchingController(Controller):
+class RandomController(Controller):
     def update(self):
         index = tuple(np.random.randint(0, self._model.grid.shape))
         direcs = [(-1, 0), (1, 0), (0, -1), (0, 1)]
